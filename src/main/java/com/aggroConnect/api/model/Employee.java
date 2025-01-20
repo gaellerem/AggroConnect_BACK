@@ -23,7 +23,9 @@ public class Employee {
     private String cellphone;
     @JsonProperty("department")
     private String department;
+    @ManyToOne
+    @JoinColumn(name = "site_id")
     @JsonProperty("site")
-    private String site;
+    private Site site;
 
 }
