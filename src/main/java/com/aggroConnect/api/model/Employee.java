@@ -21,8 +21,10 @@ public class Employee {
     private String landline;
     @JsonProperty("cellphone")
     private String cellphone;
+    @ManyToOne
+    @JoinColumn(name= "department_id")
     @JsonProperty("department")
-    private String department;
+    private Department department;
     @ManyToOne
     @JoinColumn(name = "site_id")
     @JsonProperty("site")
