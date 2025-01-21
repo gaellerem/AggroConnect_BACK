@@ -1,5 +1,6 @@
 package com.aggroConnect.api.controller;
 
+import com.aggroConnect.api.dto.EmployeeDto;
 import com.aggroConnect.api.model.Employee;
 import com.aggroConnect.api.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,15 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public Employee createEmployee(@RequestBody Employee employee) {
-        return employeeService.createEmployee(employee);
+    public Employee createEmployee(@RequestBody EmployeeDto employeeDto) {
+        return employeeService.createEmployee(
+                employeeDto.getName(),
+                employeeDto.getEmail(),
+                employeeDto.getLandline(),
+                employeeDto.getCellphone(),
+                employeeDto.getSiteId(),
+                employeeDto.getDepartmentId()
+        );
     }
 
     @DeleteMapping("/{id}")

@@ -1,7 +1,12 @@
 package com.aggroConnect.api.service;
 
+import com.aggroConnect.api.exception.ResourceNotFoundException;
+import com.aggroConnect.api.model.Department;
 import com.aggroConnect.api.model.Employee;
+import com.aggroConnect.api.model.Site;
+import com.aggroConnect.api.repository.DepartmentRepository;
 import com.aggroConnect.api.repository.EmployeeRepository;
+import com.aggroConnect.api.repository.SiteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,10 +15,14 @@ import java.util.Optional;
 @Service
 public class EmployeeService {
     EmployeeRepository employeeRepository;
+    SiteRepository siteRepository;
+    DepartmentRepository departmentRepository;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, SiteRepository siteRepository, DepartmentRepository departmentRepository) {
         this.employeeRepository = employeeRepository;
+        this.siteRepository = siteRepository;
+        this.departmentRepository = departmentRepository;
     }
 
     public Iterable<Employee> getAllEmployees() {
@@ -24,7 +33,21 @@ public class EmployeeService {
         return employeeRepository.findById(id);
     }
 
-    public Employee createEmployee(Employee employee) {
+    public Employee createEmployee(String name, String email, String landline, String cellphone, Long siteId, Long departmentId) {
+        Site site = siteRepository.findById(siteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Site", siteId));
+
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Department", departmentId));
+
+        Employee employee = new Employee();
+        employee.setName(name);
+        employee.setEmail(email);
+        employee.setLandline(landline);
+        employee.setCellphone(cellphone);
+        employee.setSite(site);
+        employee.setDepartment(department);
+
         return employeeRepository.save(employee);
     }
 
@@ -32,7 +55,7 @@ public class EmployeeService {
         if (employeeRepository.existsById(id)) {
             employeeRepository.deleteById(id);
         } else {
-            throw new RuntimeException("Employee not found with id: " + id);
+            throw new ResourceNotFoundException("Employee", id);
         }
     }
 }

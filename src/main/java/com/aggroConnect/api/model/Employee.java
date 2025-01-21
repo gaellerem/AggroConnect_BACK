@@ -11,6 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 public class Employee {
     @Id
+    @JsonProperty("id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @JsonProperty("name")
@@ -22,7 +23,7 @@ public class Employee {
     @JsonProperty("cellphone")
     private String cellphone;
     @ManyToOne
-    @JoinColumn(name= "department_id")
+    @JoinColumn(name = "department_id")
     @JsonProperty("department")
     private Department department;
     @ManyToOne
