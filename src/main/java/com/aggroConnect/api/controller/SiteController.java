@@ -36,6 +36,11 @@ public class SiteController {
         return siteService.createSite(site);
     }
 
+    @PutMapping("/{id}")
+    public Site updateSite(@PathVariable long id, @RequestBody Site site) {
+        return siteService.updateSite(id, site);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSite(@PathVariable long id) {
         siteService.deleteSite(id);

@@ -29,6 +29,15 @@ public class SiteService {
         return siteRepository.save(site);
     }
 
+    public Site updateSite(Long id, Site updatedSite) {
+        return siteRepository.findById(id).map(site -> {
+            if(updatedSite.getCity() != null) {
+                site.setCity(updatedSite.getCity());
+            }
+            return siteRepository.save(site);
+        }).orElseThrow(() -> new RuntimeException("Site not found with id: " + id));
+    }
+
     public void deleteSite(Long id) {
         if (siteRepository.existsById(id)) {
             siteRepository.deleteById(id);

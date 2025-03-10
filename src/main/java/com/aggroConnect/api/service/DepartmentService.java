@@ -28,6 +28,15 @@ public class DepartmentService {
         return departmentRepository.save(department);
     }
 
+    public Department updateDepartment(Long id, Department updatedDepartment) {
+        return departmentRepository.findById(id).map(department -> {
+            if(updatedDepartment.getName() != null) {
+                department.setName(updatedDepartment.getName());
+            }
+            return departmentRepository.save(department);
+        }).orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
+    }
+
     public void deleteDepartmentById(Long id) {
         if (departmentRepository.existsById(id)) {
             departmentRepository.deleteById(id);

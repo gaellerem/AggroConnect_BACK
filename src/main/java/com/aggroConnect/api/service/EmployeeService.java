@@ -51,6 +51,22 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
+    public void updateEmployee(Long id, String name, String email, String landline, String cellphone, Long siteId, Long departmentId) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", id));
+        Site site = siteRepository.findById(siteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Site", siteId));
+
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Department", departmentId));
+        employee.setName(name);
+        employee.setEmail(email);
+        employee.setLandline(landline);
+        employee.setCellphone(cellphone);
+        employee.setSite(site);
+        employee.setDepartment(department);
+        employeeRepository.save(employee);
+    }
     public void deleteEmployee(Long id) {
         if (employeeRepository.existsById(id)) {
             employeeRepository.deleteById(id);
