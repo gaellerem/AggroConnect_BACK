@@ -1,8 +1,10 @@
 package com.aggroConnect.api.service;
 
+import com.aggroConnect.api.exception.EntityDeletionException;
 import com.aggroConnect.api.model.Department;
 import com.aggroConnect.api.repository.DepartmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -38,10 +40,14 @@ public class DepartmentService {
     }
 
     public void deleteDepartmentById(Long id) {
-        if (departmentRepository.existsById(id)) {
-            departmentRepository.deleteById(id);
-        } else {
-            throw new RuntimeException("Department not found with id: " + id);
+        try {
+            if (departmentRepository.existsById(id)) {
+                departmentRepository.deleteById(id);
+            } else {
+                throw new RuntimeException("Le service n'a pas été retrouvé avec cet id: " + id);
+            }
+        } catch (DataIntegrityViolationException e) {
+            throw new EntityDeletionException("Ce service est encore affecté à des employés.");
         }
     }
 }

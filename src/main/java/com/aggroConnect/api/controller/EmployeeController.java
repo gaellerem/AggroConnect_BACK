@@ -4,6 +4,7 @@ import com.aggroConnect.api.dto.EmployeeDto;
 import com.aggroConnect.api.model.Employee;
 import com.aggroConnect.api.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +33,8 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public Employee createEmployee(@RequestBody EmployeeDto employeeDto) {
-        return employeeService.createEmployee(
+    public ResponseEntity<Employee> createEmployee(@RequestBody EmployeeDto employeeDto) {
+        Employee employee = employeeService.createEmployee(
                 employeeDto.getName(),
                 employeeDto.getEmail(),
                 employeeDto.getLandline(),
@@ -41,6 +42,8 @@ public class EmployeeController {
                 employeeDto.getSiteId(),
                 employeeDto.getDepartmentId()
         );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(employee);
     }
 
     @PutMapping("/{id}")

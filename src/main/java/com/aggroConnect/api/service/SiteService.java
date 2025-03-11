@@ -1,9 +1,11 @@
 package com.aggroConnect.api.service;
 
 
+import com.aggroConnect.api.exception.EntityDeletionException;
 import com.aggroConnect.api.model.Site;
 import com.aggroConnect.api.repository.SiteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -39,10 +41,14 @@ public class SiteService {
     }
 
     public void deleteSite(Long id) {
-        if (siteRepository.existsById(id)) {
-            siteRepository.deleteById(id);
-        } else {
-            throw new RuntimeException("Site not found with id: " + id);
+        try {
+            if (siteRepository.existsById(id)) {
+                siteRepository.deleteById(id);
+            } else {
+                throw new RuntimeException("Le site n'a pas été trouvé avec cet id : " + id);
+            }
+        } catch (DataIntegrityViolationException e) {
+            throw new EntityDeletionException("Ce site est encore affecté à des employés.");
         }
     }
 }

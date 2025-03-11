@@ -1,8 +1,10 @@
 package com.aggroConnect.api.controller;
 
+import com.aggroConnect.api.exception.EntityDeletionException;
 import com.aggroConnect.api.model.Department;
 import com.aggroConnect.api.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,9 +42,22 @@ public class DepartmentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDepartment(@PathVariable long id) {
-        departmentService.deleteDepartmentById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteDepartment(@PathVariable long id) {
+        try {
+            departmentService.deleteDepartmentById(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityDeletionException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGlobalExceptions(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Une erreur interne est survenue : " + ex.getMessage());
     }
 }
 
