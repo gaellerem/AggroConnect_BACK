@@ -1,6 +1,6 @@
 package com.aggroConnect.api.controller;
 
-import com.aggroConnect.api.exception.EntityDeletionException;
+import com.aggroConnect.api.dto.ApiResponse;
 import com.aggroConnect.api.model.Department;
 import com.aggroConnect.api.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,12 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/department")
 public class DepartmentController {
-    DepartmentService departmentService;
+    private final DepartmentService departmentService;
 
     @Autowired
     public DepartmentController(DepartmentService departmentService) {
@@ -21,43 +19,33 @@ public class DepartmentController {
     }
 
     @GetMapping
-    public Iterable<Department> getAllDepartments() {
-        return departmentService.getAllDepartments();
+    public ResponseEntity<ApiResponse<Iterable<Department>>> getAllDepartments() {
+        Iterable<Department> departments = departmentService.getAllDepartments();
+        return ResponseEntity.ok(new ApiResponse<>(200, "Liste des services récupérée avec succès", departments));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Department> getDepartmentById(@PathVariable long id) {
-        Optional<Department> department = departmentService.getDepartmentById(id);
-        return department.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<Department>> getDepartmentById(@PathVariable long id) {
+        Department department = departmentService.getDepartmentById(id);
+        return ResponseEntity.ok(new ApiResponse<>(200, "Service trouvé", department));
     }
 
     @PostMapping
-    public Department createDepartment(@RequestBody Department department) {
-        return departmentService.createDepartment(department);
+    public ResponseEntity<ApiResponse<Department>> createDepartment(@RequestBody Department department) {
+        Department created = departmentService.createDepartment(department);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>(201, "Service créé avec succès", created));
     }
 
     @PutMapping("/{id}")
-    public Department updateDepartment(@PathVariable long id, @RequestBody Department department) {
-        return departmentService.updateDepartment(id, department);
+    public ResponseEntity<ApiResponse<Department>> updateDepartment(@PathVariable long id, @RequestBody Department department) {
+        Department updated = departmentService.updateDepartment(id, department);
+        return ResponseEntity.ok(new ApiResponse<>(200, "Service mis à jour avec succès", updated));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteDepartment(@PathVariable long id) {
-        try {
-            departmentService.deleteDepartmentById(id);
-            return ResponseEntity.noContent().build();
-        } catch (EntityDeletionException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGlobalExceptions(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Une erreur interne est survenue : " + ex.getMessage());
+    public ResponseEntity<ApiResponse<String>> deleteDepartment(@PathVariable long id) {
+        departmentService.deleteDepartmentById(id);
+        return ResponseEntity.ok(new ApiResponse<>(200, "Service supprimé avec succès", null));
     }
 }
-

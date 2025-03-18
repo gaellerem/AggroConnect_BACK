@@ -1,5 +1,6 @@
 package com.aggroConnect.api.controller;
 
+import com.aggroConnect.api.dto.ApiResponse;
 import com.aggroConnect.api.dto.EmployeeDto;
 import com.aggroConnect.api.model.Employee;
 import com.aggroConnect.api.service.EmployeeService;
@@ -8,13 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/employee")
 public class EmployeeController {
 
-    EmployeeService employeeService;
+    private final EmployeeService employeeService;
 
     @Autowired
     public EmployeeController(EmployeeService employeeService) {
@@ -22,18 +21,19 @@ public class EmployeeController {
     }
 
     @GetMapping
-    public Iterable<Employee> getAllEmployees() {
-        return employeeService.getAllEmployees();
+    public ResponseEntity<ApiResponse<Iterable<Employee>>> getAllEmployees() {
+        Iterable<Employee> employees = employeeService.getAllEmployees();
+        return ResponseEntity.ok(new ApiResponse<>(200,"Liste des employés récupérée avec succès", employees));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
-        Optional<Employee> employee = employeeService.getEmployeeById(id);
-        return employee.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<Employee>> getEmployeeById(@PathVariable Long id) {
+        Employee employee = employeeService.getEmployeeById(id); // Gestion de l'erreur est maintenant dans le service
+        return ResponseEntity.ok(new ApiResponse<>(200, "Employé trouvé", employee));
     }
 
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody EmployeeDto employeeDto) {
+    public ResponseEntity<ApiResponse<Employee>> createEmployee(@RequestBody EmployeeDto employeeDto) {
         Employee employee = employeeService.createEmployee(
                 employeeDto.getName(),
                 employeeDto.getEmail(),
@@ -43,12 +43,13 @@ public class EmployeeController {
                 employeeDto.getDepartmentId()
         );
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(employee);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>(201, "Employé créé avec succès", employee));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody EmployeeDto employeeDto) {
-        employeeService.updateEmployee(id,
+    public ResponseEntity<ApiResponse<Employee>> updateEmployee(@PathVariable Long id, @RequestBody EmployeeDto employeeDto) {
+        Employee updated = employeeService.updateEmployee(id,
                 employeeDto.getName(),
                 employeeDto.getEmail(),
                 employeeDto.getLandline(),
@@ -56,12 +57,12 @@ public class EmployeeController {
                 employeeDto.getSiteId(),
                 employeeDto.getDepartmentId()
         );
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new ApiResponse<>(200, "Employé mis à jour avec succès", updated));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new ApiResponse<>(200, "Employé supprimé avec succès", null));
     }
 }
